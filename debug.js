@@ -78,6 +78,7 @@ function postWithAjax(myajax) {
 	  myajax.username = $("#authentication input:first").val();
 	  myajax.password = $("#authentication input").eq(1).val();
   }
+
   myajax.complete = function(jqXHR) {
 		$("#statuspre").text(
 				"HTTP " + jqXHR.status + " " + jqXHR.statusText);
@@ -96,6 +97,8 @@ function postWithAjax(myajax) {
 
 	if (jQuery.isEmptyObject(myajax.data)) {
 		myajax.contentType = 'application/x-www-form-urlencoded';
+	} else {
+		myajax.contentType = 'application/json';
 	}
 
 	$("#outputframe").hide();
@@ -116,6 +119,16 @@ function postWithAjax(myajax) {
 
 $("#submitajax").click(function(e) {
   e.preventDefault();
+  if(checkForBody()) {
+	postWithAjax({
+		headers: createHeaderData(),
+		data : createBody(), 
+		cache: false,
+		contentType: false,
+		processData: false  
+	  });
+	return;
+  }
   if(checkForFiles()){
     postWithAjax({
       headers: createHeaderData(),
@@ -138,6 +151,11 @@ function checkForFiles() {
 
 function checkForAuth() {
 	return $("#paramform").find("input[type=password]").length > 0;
+}
+
+function checkForBody() {
+	const bodyContent = $("#body").val(); 
+	return bodyContent.trim().length > 0; 
 }
 
 function createUrlData(){
@@ -186,6 +204,11 @@ function createHeaderData(){
 		mydata[name] = value
 	}
   return(mydata);
+}
+
+function createBody() {
+	const bodyContent = $("#body").val(); // Get the value of the textarea
+	return bodyContent ? bodyContent : null; // Return trimmed content or null if empty
 }
 
 function httpZeroError() {
